@@ -16,16 +16,26 @@ Pub/Sub topic -> push subscription (OIDC) -> Cloud Run (private)
 ## Prerequisites
 1. Enable Infra Manager and create its service account:
    ```bash
-   gcloud services enable config.googleapis.com
+   gcloud services enable config.googleapis.com compute.googleapis.com \
+     cloudresourcemanager.googleapis.com iam.googleapis.com serviceusage.googleapis.com
    gcloud iam service-accounts create infra-manager
    for r in roles/config.agent roles/run.admin roles/pubsub.admin \
             roles/iam.serviceAccountAdmin roles/iam.serviceAccountUser roles/compute.admin \
+            roles/artifactregistry.reader \
             roles/resourcemanager.projectIamAdmin roles/serviceusage.serviceUsageAdmin; do
      gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member=serviceAccount:infra-manager@$PROJECT_ID.iam.gserviceaccount.com --role=$r
    done
    ```
+   Why these are needed (each one was a real failure on the first deploy):
+   - `cloudresourcemanager.googleapis.com`: Terraform reads the project; without it `plan` fails with `SERVICE_DISABLED`.
+   - `roles/artifactregistry.reader`: Cloud Run validates the container image with the deployer's identity; without it
+     the apply fails with `artifactregistry.repositories.downloadArtifacts denied`.
 2. Build the image first (see the app repo), e.g. `gcloud run deploy ... --source .`, and note its URL.
+   Prefer the image digest (`...mon-service@sha256:...`) for `IMAGE`, since `source` deploys do not create a `:latest` tag.
+
+Right after the first apply, Pub/Sub may get `403` from Cloud Run for a minute or two while the new IAM bindings propagate.
+Pub/Sub retries automatically, so no message is lost.
 
 ## Deploy
 ```bash
