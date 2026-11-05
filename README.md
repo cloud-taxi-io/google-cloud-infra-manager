@@ -82,7 +82,9 @@ PostgreSQL 18, PostGIS 3 and TimescaleDB, `timescaledb-tune`, then a database `a
 - **Phone number + OTP** sign-up / sign-in is enabled (`sign_in.phone_number`). Users receive a 6-digit code by SMS.
   - SMS is **billed per message** and the price depends on the destination country: check the Identity Platform pricing page.
   - `identity_sms_allowed_regions` (default `["DZ", "FR"]`) limits the countries SMS can be sent to, to avoid SMS-pumping fraud and surprise bills. Adjust it to your users.
-  - `identity_test_phone_numbers` defines fictitious numbers with a fixed code: no SMS, free, development only.
+  - Test phone numbers (fixed code, no SMS, free, development only): pass them at apply time, **not in git** (the repo is public):
+    `TEST_PHONE_NUMBERS_JSON='{"+33612345678":"123456"}' ./deploy.sh apply` (variable `identity_test_phone_numbers_json`; Infra Manager passes inputs as strings, hence JSON).
+    Note that each `apply` replaces the inputs, so pass the variable every time or the test numbers are removed.
   - The client app must use reCAPTCHA / app verification when requesting the code (Firebase Auth SDK handles it); keep the quota low.
 - Add your app domain to `identity_authorized_domains`.
 - The `infra-manager` service account needs `roles/identityplatform.admin` (and `serviceusage` to enable the API).
