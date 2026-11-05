@@ -52,8 +52,8 @@ resource "google_compute_instance" "test_vm" {
 
   lifecycle {
     precondition {
-      condition     = !var.install_timescaledb || var.vm_external_ip
-      error_message = "install_timescaledb needs internet access: set vm_external_ip = true (about 3-4 USD/month)."
+      condition     = !var.install_timescaledb || var.vm_cloud_nat || var.vm_external_ip
+      error_message = "install_timescaledb needs outbound internet: set vm_cloud_nat = true (about 1 USD/month, no public IP) or vm_external_ip = true."
     }
   }
 

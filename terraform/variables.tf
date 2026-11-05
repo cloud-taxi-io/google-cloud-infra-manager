@@ -69,6 +69,12 @@ variable "vm_external_ip" {
 
 variable "install_timescaledb" {
   type        = bool
-  description = "Install PostgreSQL 15 + PostGIS + TimescaleDB on the VM at first boot. Requires vm_external_ip = true."
+  description = "Install PostgreSQL 15 + PostGIS + TimescaleDB on the VM at first boot. Requires outbound internet (vm_cloud_nat or vm_external_ip)."
+  default     = false
+}
+
+variable "vm_cloud_nat" {
+  type        = bool
+  description = "Create a Cloud Router + Cloud NAT so the VM can reach the internet without a public IP (about 1 USD/month)."
   default     = false
 }

@@ -56,10 +56,10 @@ The VM is in a different region from the rest of the infra (`europe-west1`), whi
 The `infra-manager` service account also needs `roles/compute.admin`.
 
 ## PostgreSQL + PostGIS + TimescaleDB on the VM
-Set `install_timescaledb = true` (and `vm_external_ip = true`, required to download packages) to install, at first boot,
+Set `install_timescaledb = true` and `vm_cloud_nat = true` (outbound internet without a public IP) to install, at first boot,
 PostgreSQL 15, PostGIS 3 and TimescaleDB with `terraform/scripts/install-postgres-timescaledb.sh`.
 It creates a database `app` with both extensions enabled. PostgreSQL listens on localhost only.
-- Off by default so the VM stays free; the external IP costs about 3-4 USD/month.
+- Off by default so the VM stays free. `vm_cloud_nat` (Cloud Router + Cloud NAT, `terraform/nat.tf`) costs about 1 USD/month plus 0.045 USD/GB processed; the VM keeps no public IP. `vm_external_ip = true` also works (about 3-4 USD/month) but exposes the VM.
 - An `e2-micro` has 1 GB of RAM: fine for tests, not for real workloads.
 - Follow the install: `gcloud compute ssh test-vm --zone us-central1-a --tunnel-through-iap -- sudo journalctl -u google-startup-scripts -f`
 - Connect: `sudo -u postgres psql -d app`

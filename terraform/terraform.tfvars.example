@@ -3,6 +3,7 @@ region     = "europe-west1"
 image      = "europe-west1-docker.pkg.dev/gen-lang-client-0031150958/cloud-run-source-deploy/mon-service:latest"
 
 # Optional: install PostgreSQL + PostGIS + TimescaleDB on the test VM.
-# The VM needs internet to download packages, so an external IP is required (not free: ~3-4 USD/month).
-# vm_external_ip      = true
+# The VM needs outbound internet to download packages. Cloud NAT gives it that without a public IP
+# (about 1 USD/month); the VM stays unreachable from the internet.
+# vm_cloud_nat        = true
 # install_timescaledb = true
