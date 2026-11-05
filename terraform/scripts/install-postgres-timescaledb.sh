@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # VM startup script: PostgreSQL 15 + PostGIS + TimescaleDB on Debian 12.
-# Needs outbound internet (external IP or Cloud NAT). Idempotent: runs once.
+# Needs outbound internet (external IP). Idempotent: runs once.
 set -euo pipefail
 
 MARKER=/var/lib/postgis-timescaledb-installed
