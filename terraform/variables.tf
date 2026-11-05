@@ -77,8 +77,8 @@ variable "install_timescaledb" {
 # --- Identity Platform ------------------------------------------------------
 variable "identity_authorized_domains" {
   type        = list(string)
-  description = "Domains authorized for OAuth redirects (e.g. your app domain)"
-  default     = ["localhost"]
+  description = "Domains authorized for OAuth redirects and the reCAPTCHA fallback (e.g. your app domain). Must include the default Firebase domains, otherwise phone auth fallback and OAuth redirects break."
+  default     = ["localhost", "gen-lang-client-0031150958.firebaseapp.com", "gen-lang-client-0031150958.web.app"]
 }
 
 variable "identity_google_client_id" {
