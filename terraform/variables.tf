@@ -38,3 +38,31 @@ variable "max_instances" {
   type    = number
   default = 10
 }
+
+# --- Free-tier VM -----------------------------------------------------------
+variable "vm_name" {
+  type    = string
+  default = "test-vm"
+}
+
+variable "vm_zone" {
+  type        = string
+  description = "Must be in us-west1, us-central1 or us-east1 to stay in the free tier"
+  default     = "us-central1-a"
+
+  validation {
+    condition     = can(regex("^(us-west1|us-central1|us-east1)-[a-z]$", var.vm_zone))
+    error_message = "Free tier only applies to zones in us-west1, us-central1 and us-east1."
+  }
+}
+
+variable "vm_network" {
+  type    = string
+  default = "default"
+}
+
+variable "vm_external_ip" {
+  type        = bool
+  description = "Attach an ephemeral external IPv4. Not free (about 3-4 USD/month), so off by default."
+  default     = false
+}
