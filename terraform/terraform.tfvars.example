@@ -12,3 +12,8 @@ image      = "europe-west1-docker.pkg.dev/gen-lang-client-0031150958/cloud-run-s
 # Optional "Sign in with Google" (OAuth client created in the console):
 # identity_google_client_id     = "xxxx.apps.googleusercontent.com"
 # identity_google_client_secret = "..."   # better: pass it with --input-values, never commit it
+
+# Phone sign-up / sign-in (SMS OTP): enabled in identity.tf. Restrict countries to limit SMS fraud and cost:
+# identity_sms_allowed_regions = ["DZ", "FR"]
+# Test numbers: no SMS sent, fixed code (development only)
+# identity_test_phone_numbers  = { "+33612345678" = "123456" }

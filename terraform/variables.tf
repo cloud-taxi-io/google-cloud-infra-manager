@@ -93,3 +93,15 @@ variable "identity_google_client_secret" {
   default     = ""
   sensitive   = true
 }
+
+variable "identity_sms_allowed_regions" {
+  type        = list(string)
+  description = "ISO 3166-1 alpha-2 country codes to which verification SMS may be sent (SMS region allowlist)"
+  default     = ["DZ", "FR"]
+}
+
+variable "identity_test_phone_numbers" {
+  type        = map(string)
+  description = "Test phone numbers -> fixed 6-digit code. No SMS is sent for them (free, for development only)."
+  default     = {}
+}

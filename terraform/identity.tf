@@ -1,6 +1,6 @@
 # --- Google Identity Platform: authentication / user management for the app ---
 # Free up to 50,000 monthly active users (email/password and social providers);
-# SMS / phone auth, MFA by SMS and SAML/OIDC beyond the free tier are billed.
+# Phone auth (SMS OTP), MFA by SMS and SAML/OIDC beyond the free tier are billed per SMS / MAU.
 # Requires billing enabled on the project.
 resource "google_project_service" "identity" {
   project            = var.project_id
@@ -20,6 +20,20 @@ resource "google_identity_platform_config" "default" {
     email {
       enabled           = true
       password_required = true
+    }
+
+    # Sign-up and sign-in with a phone number + one-time code (OTP) sent by SMS
+    phone_number {
+      enabled = true
+      # Fictitious numbers -> fixed codes, no SMS sent, no cost (for tests), e.g. { "+33612345678" = "123456" }
+      test_phone_numbers = var.identity_test_phone_numbers
+    }
+  }
+
+  # Limit the countries SMS can be sent to (protects against SMS pumping fraud and surprise bills)
+  sms_region_config {
+    allowlist_only {
+      allowed_regions = var.identity_sms_allowed_regions
     }
   }
 
