@@ -26,7 +26,7 @@ resource "google_identity_platform_config" "default" {
     phone_number {
       enabled = true
       # Fictitious numbers -> fixed codes, no SMS sent, no cost (for tests), e.g. { "+33612345678" = "123456" }
-      test_phone_numbers = var.identity_test_phone_numbers
+      test_phone_numbers = merge(var.identity_test_phone_numbers, jsondecode(var.identity_test_phone_numbers_json))
     }
   }
 

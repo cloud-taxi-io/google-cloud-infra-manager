@@ -105,3 +105,10 @@ variable "identity_test_phone_numbers" {
   description = "Test phone numbers -> fixed 6-digit code. No SMS is sent for them (free, for development only)."
   default     = {}
 }
+
+variable "identity_test_phone_numbers_json" {
+  type        = string
+  description = "JSON object of test phone numbers -> fixed code, e.g. {\"+33612345678\":\"123456\"}. Infra Manager passes input values as strings, so maps are given as JSON. Keep real numbers and codes out of git: pass at apply time."
+  default     = "{}"
+  sensitive   = true
+}
