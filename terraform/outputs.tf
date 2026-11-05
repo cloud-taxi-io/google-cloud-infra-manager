@@ -13,3 +13,15 @@ output "subscription" {
 output "invoker_service_account" {
   value = google_service_account.invoker.email
 }
+
+output "sql_instance_connection_name" {
+  value = google_sql_database_instance.postgres.connection_name
+}
+
+output "sql_database" {
+  value = google_sql_database.app.name
+}
+
+output "sql_password_secret" {
+  value = google_secret_manager_secret.db_password.secret_id
+}
