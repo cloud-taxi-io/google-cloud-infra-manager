@@ -66,3 +66,9 @@ variable "vm_external_ip" {
   description = "Attach an ephemeral external IPv4. Not free (about 3-4 USD/month), so off by default."
   default     = false
 }
+
+variable "install_timescaledb" {
+  type        = bool
+  description = "Install PostgreSQL 15 + PostGIS + TimescaleDB on the VM at first boot. Requires vm_external_ip = true."
+  default     = false
+}

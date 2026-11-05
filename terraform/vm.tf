@@ -48,6 +48,15 @@ resource "google_compute_instance" "test_vm" {
     purpose = "test"
   }
 
+  metadata_startup_script = var.install_timescaledb ? file("${path.module}/scripts/install-postgres-timescaledb.sh") : null
+
+  lifecycle {
+    precondition {
+      condition     = !var.install_timescaledb || var.vm_external_ip
+      error_message = "install_timescaledb needs internet access: set vm_external_ip = true (about 3-4 USD/month)."
+    }
+  }
+
   depends_on = [google_project_service.compute]
 }
 
