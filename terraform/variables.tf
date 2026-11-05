@@ -73,3 +73,23 @@ variable "install_timescaledb" {
   default     = true
 }
 
+
+# --- Identity Platform ------------------------------------------------------
+variable "identity_authorized_domains" {
+  type        = list(string)
+  description = "Domains authorized for OAuth redirects (e.g. your app domain)"
+  default     = ["localhost"]
+}
+
+variable "identity_google_client_id" {
+  type        = string
+  description = "OAuth 2.0 client ID for Sign in with Google. Leave empty to skip."
+  default     = ""
+}
+
+variable "identity_google_client_secret" {
+  type        = string
+  description = "OAuth 2.0 client secret for Sign in with Google (stored in Terraform state)."
+  default     = ""
+  sensitive   = true
+}

@@ -21,7 +21,7 @@ Pub/Sub topic -> push subscription (OIDC) -> Cloud Run (private)
    gcloud iam service-accounts create infra-manager
    for r in roles/config.agent roles/run.admin roles/pubsub.admin \
             roles/iam.serviceAccountAdmin roles/iam.serviceAccountUser roles/compute.admin \
-            roles/artifactregistry.reader \
+            roles/artifactregistry.reader roles/identityplatform.admin \
             roles/resourcemanager.projectIamAdmin roles/serviceusage.serviceUsageAdmin; do
      gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member=serviceAccount:infra-manager@$PROJECT_ID.iam.gserviceaccount.com --role=$r
@@ -73,3 +73,16 @@ PostgreSQL 18, PostGIS 3 and TimescaleDB, `timescaledb-tune`, then a database `a
 - Copy files from your PC with `gcloud compute scp --tunnel-through-iap`.
 - The `infra-manager` service account needs `roles/compute.admin`.
 - Tear down everything to stop billing: `./deploy.sh delete`.
+
+## Identity Platform (app users)
+`terraform/identity.tf` enables Google Identity Platform to manage the app's users (sign-up, sign-in, password reset, tokens):
+- API `identitytoolkit.googleapis.com` and the project configuration with **email/password** sign-in (duplicate emails refused, anonymous users auto-deleted).
+- Optional **Sign in with Google**: create an OAuth 2.0 client in the console, then set `identity_google_client_id` / `identity_google_client_secret`.
+  The secret ends up in the Terraform state; restrict access to the state bucket and never commit it.
+- Add your app domain to `identity_authorized_domains`.
+- The `infra-manager` service account needs `roles/identityplatform.admin` (and `serviceusage` to enable the API).
+
+How the app uses it: the client SDK (Firebase Auth) signs the user in and gets an **ID token (JWT)**; the backend (e.g. the Cloud Run service)
+must verify that token (Firebase Admin SDK `verify_id_token`) before trusting the request. Verification is not implemented in `main.py` yet.
+
+Cost: free up to 50,000 monthly active users, then about 0.0055 USD per MAU (tiered). SMS and phone auth are billed per message. Check the pricing page.

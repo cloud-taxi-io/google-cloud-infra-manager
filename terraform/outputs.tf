@@ -21,3 +21,12 @@ output "vm_name" {
 output "vm_ssh_command" {
   value = "gcloud compute ssh ${google_compute_instance.test_vm.name} --zone ${google_compute_instance.test_vm.zone} --tunnel-through-iap --project ${var.project_id}"
 }
+
+output "identity_auth_domain" {
+  description = "Default Firebase/Identity Platform auth domain for the client SDK"
+  value       = "${var.project_id}.firebaseapp.com"
+}
+
+output "identity_google_sign_in_enabled" {
+  value = var.identity_google_client_id != ""
+}
