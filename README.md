@@ -21,7 +21,7 @@ Pub/Sub topic -> push subscription (OIDC) -> Cloud Run (private)
    gcloud iam service-accounts create infra-manager
    for r in roles/config.agent roles/run.admin roles/pubsub.admin \
             roles/iam.serviceAccountAdmin roles/iam.serviceAccountUser roles/compute.admin \
-            roles/artifactregistry.reader roles/identityplatform.admin \
+            roles/artifactregistry.reader roles/identityplatform.admin roles/secretmanager.admin \
             roles/resourcemanager.projectIamAdmin roles/serviceusage.serviceUsageAdmin; do
      gcloud projects add-iam-policy-binding $PROJECT_ID \
        --member=serviceAccount:infra-manager@$PROJECT_ID.iam.gserviceaccount.com --role=$r
@@ -93,3 +93,39 @@ How the app uses it: the client SDK (Firebase Auth) signs the user in and gets a
 must verify that token (Firebase Admin SDK `verify_id_token`) before trusting the request. Verification is not implemented in `main.py` yet.
 
 Cost: free up to 50,000 monthly active users, then about 0.0055 USD per MAU (tiered). Phone auth SMS are billed per message (varies by country). Check the pricing page.
+
+## VTC API (Cloud Run, us-central1)
+
+`terraform/main.tf` deploys the API from [google-cloud-pubsub-run](https://github.com/cloud-taxi-io/google-cloud-pubsub-run):
+
+```
+App ─► Cloud Run vtc-api (us-central1, public) ──Direct VPC egress──► PostgreSQL on VM timescaledb (10.128.0.2)
+            │ publish                                   ▲
+            ▼                                           │ write
+   Pub/Sub driver-locations ──push (OIDC)──► /pubsub/push
+            └─ after 10 failed deliveries ─► driver-locations-dlq (+ pull subscription, 7 days)
+```
+
+- Runtime service account `vtc-api` with least privilege: read the `DATABASE_URL` secret, publish to `driver-locations`, `firebaseauth.viewer`.
+- **Public** service (`allUsers` invoker): the mobile app sends a Firebase ID token; security relies on JWT verification + PostgreSQL RBAC. `/pubsub/push` checks the OIDC token (fixed audience `vtc-api-pubsub-push`, service account `pubsub-invoker`).
+- Cloud Run job `vtc-api-migrate` runs `alembic upgrade head`.
+- The old `mon-service` (europe-west1), `mon-topic` and `ma-sub` are removed.
+
+### One-time setup
+1. **Database on the VM**: create the `app` user and listen on the internal IP for the Cloud Run subnet only (`scripts/configure-db-network.sh`, password on stdin).
+   Port 5432 is reachable only from inside the VPC (`default-allow-internal`); `pg_hba.conf` only allows `10.128.0.0/20`.
+2. **Secret** (outside Terraform, so the password never enters the state):
+   ```bash
+   gcloud secrets create vtc-database-url --replication-policy=automatic
+   printf 'postgresql+psycopg://app:%s@10.128.0.2:5432/app' "$(cat password-file)" | gcloud secrets versions add vtc-database-url --data-file=-
+   ```
+3. `infra-manager` needs `roles/secretmanager.admin` (to grant the API access to the secret).
+
+### Deploy a new version
+```bash
+export PROJECT_ID=gen-lang-client-0031150958
+export IMAGE=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vtc-api:<tag>
+./deploy.sh apply     # updates the service and the migration job image
+./deploy.sh migrate   # alembic upgrade head
+```
+First admin: `DATABASE_URL=... python -m app.cli grant-role <firebase_uid> admin --create` (run as a one-off job or through an SSH tunnel).
