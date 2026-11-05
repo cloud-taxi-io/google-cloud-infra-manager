@@ -4,7 +4,7 @@
 #   - 30 GB standard persistent disk (pd-standard)
 #   - 1 GB outbound network traffic from North America
 # The external IPv4 address is NOT free (about 3.65 USD/month, 0.005 USD/h); it is needed to download packages.
-# SSH is only allowed from IAP:  gcloud compute ssh test-vm --zone <zone> --tunnel-through-iap
+# SSH is only allowed from IAP:  gcloud compute ssh timescaledb --zone <zone> --tunnel-through-iap
 resource "google_project_service" "compute" {
   project            = var.project_id
   service            = "compute.googleapis.com"

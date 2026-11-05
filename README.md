@@ -49,14 +49,14 @@ matching the Compute Engine Always Free tier **if**:
 **Public IP (not free)**: `vm_external_ip = true` (default) attaches an ephemeral external IPv4, about 3.65 USD/month
 (0.005 USD/h, so ~0.85 USD for a 7-day test). It is required to download packages. The firewall only allows SSH from the IAP range:
 ```bash
-gcloud compute ssh test-vm --zone us-central1-a --tunnel-through-iap
+gcloud compute ssh timescaledb --zone us-central1-a --tunnel-through-iap
 ```
 Your user needs `roles/iap.tunnelResourceAccessor`. Set `vm_external_ip = false` and `install_timescaledb = false` to stay at 0 USD.
 
 **Database**: `install_timescaledb = true` (default) runs `terraform/scripts/install-postgres-timescaledb.sh` at first boot:
-PostgreSQL 15, PostGIS 3 and TimescaleDB, `timescaledb-tune`, then a database `app` with `CREATE EXTENSION timescaledb` and
+PostgreSQL 18, PostGIS 3 and TimescaleDB, `timescaledb-tune`, then a database `app` with `CREATE EXTENSION timescaledb` and
 `CREATE EXTENSION postgis`. PostgreSQL listens on localhost only.
-- Follow the install: `gcloud compute ssh test-vm --zone us-central1-a --tunnel-through-iap -- sudo journalctl -u google-startup-scripts -f`
+- Follow the install: `gcloud compute ssh timescaledb --zone us-central1-a --tunnel-through-iap -- sudo journalctl -u google-startup-scripts -f`
 - Check: `sudo -u postgres psql -d app -c "\dx"`
 - The script runs once (marker `/var/lib/postgis-timescaledb-installed`); delete it and reboot to re-run.
 - An `e2-micro` has 1 GB RAM: tests only.

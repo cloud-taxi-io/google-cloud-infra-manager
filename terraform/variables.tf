@@ -42,7 +42,7 @@ variable "max_instances" {
 # --- Free-tier VM -----------------------------------------------------------
 variable "vm_name" {
   type    = string
-  default = "test-vm"
+  default = "timescaledb"
 }
 
 variable "vm_zone" {
@@ -69,7 +69,7 @@ variable "vm_external_ip" {
 
 variable "install_timescaledb" {
   type        = bool
-  description = "Install PostgreSQL 15 + PostGIS + TimescaleDB on the VM at first boot. Requires vm_external_ip = true to download packages."
+  description = "Install PostgreSQL 18 + PostGIS + TimescaleDB on the VM at first boot. Requires vm_external_ip = true to download packages."
   default     = true
 }
 
