@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deploy this infra with Google Cloud Infrastructure Manager.
-# Usage: PROJECT_ID=... IMAGE=... ./deploy.sh [apply|preview|delete]
+# Usage: PROJECT_ID=... IMAGE=... ./deploy.sh [apply|preview|migrate|delete]
 set -euo pipefail
 
 PROJECT_ID="${PROJECT_ID:?set PROJECT_ID}"
@@ -28,8 +28,13 @@ case "$ACTION" in
       --local-source=terraform \
       --input-values="^|^project_id=${PROJECT_ID}|region=${REGION}|image=${IMAGE}|identity_test_phone_numbers_json=${TEST_PHONE_NUMBERS_JSON}"
     ;;
+  migrate)
+    # Database migrations (alembic upgrade head) with the image currently set on the job.
+    API_REGION="${API_REGION:-us-central1}"
+    gcloud run jobs execute "${MIGRATE_JOB:-vtc-api-migrate}" --region="${API_REGION}" --project="${PROJECT_ID}" --wait
+    ;;
   delete)
     gcloud infra-manager deployments delete "projects/${PROJECT_ID}/locations/${REGION}/deployments/${DEPLOYMENT}"
     ;;
-  *) echo "Usage: $0 [apply|preview|delete]"; exit 1 ;;
+  *) echo "Usage: $0 [apply|preview|migrate|delete]"; exit 1 ;;
 esac

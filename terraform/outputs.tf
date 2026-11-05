@@ -1,17 +1,26 @@
 output "service_url" {
-  value = google_cloud_run_v2_service.service.uri
+  value = google_cloud_run_v2_service.api.uri
 }
 
-output "topic" {
-  value = google_pubsub_topic.topic.id
+output "api_service_account" {
+  value = google_service_account.api.email
 }
 
-output "subscription" {
-  value = google_pubsub_subscription.sub.id
+output "migrate_job" {
+  description = "Run before each new image: gcloud run jobs execute <name> --region <api_region> --wait"
+  value       = google_cloud_run_v2_job.migrate.name
 }
 
-output "invoker_service_account" {
-  value = google_service_account.invoker.email
+output "locations_topic" {
+  value = google_pubsub_topic.locations.id
+}
+
+output "locations_subscription" {
+  value = google_pubsub_subscription.locations_push.id
+}
+
+output "locations_dead_letter_subscription" {
+  value = google_pubsub_subscription.locations_dlq.id
 }
 
 output "vm_name" {

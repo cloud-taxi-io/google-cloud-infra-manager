@@ -11,22 +11,34 @@ variable "region" {
 
 variable "image" {
   type        = string
-  description = "Container image for the Cloud Run service (Artifact Registry URL)"
+  description = "Container image of the VTC API (Artifact Registry URL, preferably a digest or commit tag)"
+}
+
+variable "api_region" {
+  type        = string
+  description = "Region of the API on Cloud Run. Same region as the database VM (low latency, free internal traffic)."
+  default     = "us-central1"
+}
+
+variable "database_url_secret" {
+  type        = string
+  description = "Secret Manager secret holding DATABASE_URL (created outside Terraform, see README)"
+  default     = "vtc-database-url"
 }
 
 variable "topic_name" {
   type    = string
-  default = "mon-topic"
+  default = "driver-locations"
 }
 
 variable "subscription_name" {
   type    = string
-  default = "ma-sub"
+  default = "driver-locations-push"
 }
 
 variable "service_name" {
   type    = string
-  default = "mon-service"
+  default = "vtc-api"
 }
 
 variable "min_instances" {
@@ -36,7 +48,7 @@ variable "min_instances" {
 
 variable "max_instances" {
   type    = number
-  default = 10
+  default = 5
 }
 
 # --- Free-tier VM -----------------------------------------------------------
